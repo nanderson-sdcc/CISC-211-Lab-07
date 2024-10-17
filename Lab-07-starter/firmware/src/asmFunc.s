@@ -59,7 +59,36 @@ asmFunc:
      * Use it to test the C test code */
     
     /*** STUDENTS: Place your code BELOW this line!!! **************/
-
+    
+    /* Unpacking A and B into new registers. A will be in r1 and B in r2 */
+    MOV r1, r0 @ for A
+    ASR r1, r1, 16 @ simple process to ensure the sign is correct
+    
+    /* B is trickier but here is the idea */
+    MOV r2, r0 
+    LDR r5, =0x0000FFFF @ we will use this for a bitmask
+    AND r2, r2, r5 @ this ensures that we only look at the lower 16 bits of the original
+    
+    LDR r6, =0x00008000 @ we prepare to see if the 16th bit is a 1, which would mean that B is negative
+    AND r5, r2, r6 @ this either gives us 0 or a positive number (positive when 16th bit is 1)
+    
+    CMP r5, 0 @ if the 16th bit is a one (positive/greater than 0), we need to do sign extension
+    BGT sign_extension
+    
+    b storing_values
+    
+sign_extension:
+    /* sets the most significant 16 bits to 1 */
+    LDR r5, =0xFFFF0000
+    ORR r2, r2, r5
+    
+storing_values:
+    /* Storing these values into a_value and b_value */
+    LDR r3, =a_value
+    STR r1, [r3]
+    
+    LDR r4, =b_value
+    STR r2, [r4]
     
     /*** STUDENTS: Place your code ABOVE this line!!! **************/
 
